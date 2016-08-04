@@ -8,9 +8,11 @@ module.exports = class LunchCrew {
 
     this._id = lunchCrew._id
     this.destinationOptions = lunchCrew.destinationOptions
+    this.name = lunchCrew.name
   }
 
   validate () {
-    return this.destinationOptions
+    return this.destinationOptions &&
+      this.name
   }
 }
