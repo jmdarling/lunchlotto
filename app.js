@@ -14,6 +14,8 @@ const app = express()
 app.use(bodyParser.json())
 app.use(morgan('dev'))
 
+app.use(express.static('public'))
+
 app.get('/', (request, response) => {
   response.send('lunchlotto')
 })
