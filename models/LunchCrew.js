@@ -12,7 +12,6 @@ module.exports = class LunchCrew {
   }
 
   validate () {
-    return this.destinationOptions &&
-      this.name
+    return !!this.name
   }
 }
