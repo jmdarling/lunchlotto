@@ -46,13 +46,11 @@ app.post('/lunchCrew', (request, response) => {
 })
 
 dataService.connect(config.dbUrl)
-  .then(listen)
+  .then(() => {
+    app.listen(config.appPort, () => {
+      console.log(`App running on port ${config.appPort}`)
+    })
+  })
   .catch(error => {
     console.error(error)
   })
-
-function listen (port) {
-  app.listen(port, () => {
-    console.log(`App running on port ${port}`)
-  })
-}
