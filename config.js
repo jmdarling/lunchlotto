@@ -1,6 +1,6 @@
 'use strict'
 
 module.exports = {
-  dbUrl: 'mongodb://localhost:27017/lunchlotto',
+  dbUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/lunchlotto',
   appPort: 8080
 }
