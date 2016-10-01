@@ -12,9 +12,9 @@ const dataService = require('./services/dataService')
 const LunchCrew = require('./models/LunchCrew')
 const DestinationOption = require('./models/DestinationOption')
 
-var app = express()
-var server = require('http').Server(app)
-var io = require('socket.io')(server)
+const app = express()
+const server = require('http').Server(app)
+// const io = require('socket.io')(server)
 
 app.use(express.static('public'))
 
@@ -27,13 +27,22 @@ app.use((request, response, next) => {
 app.use(bodyParser.json())
 app.use(morgan('dev'))
 
-
 app.get('/', (request, response) => {
   response.send('lunchlotto')
 })
 
 app.get('/lunchCrew', (request, response) => {
   dataService.getLunchCrews()
+    .then(destinationOptions => {
+      response.send(destinationOptions)
+    })
+    .catch(error => {
+      response.status(500).send(error)
+    })
+})
+
+app.get('/lunchCrew/:lunchCrewName', (request, response) => {
+  dataService.getLunchCrew(request.params.lunchCrewName)
     .then(lunchCrews => {
       response.send(lunchCrews)
     })
@@ -42,17 +51,10 @@ app.get('/lunchCrew', (request, response) => {
     })
 })
 
-app.post('/destination', (request, response) => {
-  var destinationOption = new DestinationOption(request.body)
-
-  if (!destinationOption.validate()) {
-    response.status(400).send(`Failed to validate ${JSON.stringify(request.body)}.`)
-    return
-  }
-
-  dataService.insertDestinationOption(destinationOption)
-    .then(() => {
-      response.sendStatus(200)
+app.get('/lunchCrew/:lunchCrewName/destinations', (request, response) => {
+  dataService.getDestinationOptions(request.params.lunchCrewName)
+    .then(destinationOptions => {
+      response.send(destinationOptions)
     })
     .catch(error => {
       response.status(500).send(error)
@@ -76,6 +78,23 @@ app.post('/lunchCrew', (request, response) => {
     })
 })
 
+app.post('/destination', (request, response) => {
+  var destinationOption = new DestinationOption(request.body)
+
+  if (!destinationOption.validate()) {
+    response.status(400).send(`Failed to validate ${JSON.stringify(request.body)}.`)
+    return
+  }
+
+  dataService.insertDestinationOption(destinationOption)
+    .then(() => {
+      response.sendStatus(200)
+    })
+    .catch(error => {
+      response.status(500).send(error)
+    })
+})
+
 dataService.connect(config.dbUrl)
   .then(() => {
     server.listen(config.appPort, () => {
@@ -86,9 +105,24 @@ dataService.connect(config.dbUrl)
     console.error(error)
   })
 
-io.of('/socket').on('connection', (socket) => {
-  socket.emit('news', { hello: 'world' })
-  socket.on('my other event', (data) => {
-    console.log(data)
-  })
-})
+// io.of('/socket').on('connection', (socket) => {
+//   socket.emit('news', { hello: 'world' })
+//   socket.on('my other event', (data) => {
+//     console.log(data)
+//   })
+// })
+
+// io.of('/socket').on('connection', (socket) => {
+//   socket.emit('hello', {hello: 'Welcome to Lunch Lotto'})
+//   socket.on('GetDestinations', (lunchCrew) => {
+//     dataService.getDestinationOptions(lunchCrew)
+//     .then(destinationOptions => {
+//       socket.send(destinationOptions)
+//     })
+//     .catch(error => {
+//       socket.status(500).send(error)
+//     })
+
+//     console.log('Destinations were requested for $lunchCrew')
+//   })
+// })
