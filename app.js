@@ -12,7 +12,11 @@ const dataService = require('./services/dataService')
 const LunchCrew = require('./models/LunchCrew')
 const DestinationOption = require('./models/DestinationOption')
 
-const app = express()
+var app = express()
+var server = require('http').Server(app)
+var io = require('socket.io')(server)
+
+app.use(express.static('public'))
 
 app.use((request, response, next) => {
   response.header('Access-Control-Allow-Origin', '*')
@@ -23,7 +27,6 @@ app.use((request, response, next) => {
 app.use(bodyParser.json())
 app.use(morgan('dev'))
 
-app.use(express.static('public'))
 
 app.get('/', (request, response) => {
   response.send('lunchlotto')
@@ -75,10 +78,17 @@ app.post('/lunchCrew', (request, response) => {
 
 dataService.connect(config.dbUrl)
   .then(() => {
-    app.listen(config.appPort, () => {
+    server.listen(config.appPort, () => {
       console.log(`App running on port ${config.appPort}`)
     })
   })
   .catch(error => {
     console.error(error)
   })
+
+io.of('/socket').on('connection', (socket) => {
+  socket.emit('news', { hello: 'world' })
+  socket.on('my other event', (data) => {
+    console.log(data)
+  })
+})
