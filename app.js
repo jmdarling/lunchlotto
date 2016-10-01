@@ -14,7 +14,7 @@ const DestinationOption = require('./models/DestinationOption')
 
 const app = express()
 const server = require('http').Server(app)
-// const io = require('socket.io')(server)
+const io = require('socket.io')(server)
 
 app.use(express.static('public'))
 
@@ -105,24 +105,19 @@ dataService.connect(config.dbUrl)
     console.error(error)
   })
 
-// io.of('/socket').on('connection', (socket) => {
-//   socket.emit('news', { hello: 'world' })
-//   socket.on('my other event', (data) => {
-//     console.log(data)
-//   })
-// })
+io.of('/socket').on('connection', (socket) => {
+  socket.emit('hello', {hello: 'Welcome to Lunch Lotto'})
 
-// io.of('/socket').on('connection', (socket) => {
-//   socket.emit('hello', {hello: 'Welcome to Lunch Lotto'})
-//   socket.on('GetDestinations', (lunchCrew) => {
-//     dataService.getDestinationOptions(lunchCrew)
-//     .then(destinationOptions => {
-//       socket.send(destinationOptions)
-//     })
-//     .catch(error => {
-//       socket.status(500).send(error)
-//     })
+  socket.on('update_destinations', (lunchCrew) => {
+    dataService.getDestinationOptions(lunchCrew)
+    .then(destinationOptions => {
+      console.log(`Destinations for '${lunchCrew}' are '${destinationOptions}'`)
+      socket.emit('update_destinations', destinationOptions)
+    })
+    .catch(error => {
+      socket.status(500).send(error)
+    })
 
-//     console.log('Destinations were requested for $lunchCrew')
-//   })
-// })
+    console.log(`Destinations were requested for '${lunchCrew}`)
+  })
+})
