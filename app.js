@@ -10,6 +10,7 @@ const config = require('./config')
 const dataService = require('./services/dataService')
 
 const LunchCrew = require('./models/LunchCrew')
+const DestinationOption = require('./models/DestinationOption')
 
 var app = express()
 var server = require('http').Server(app)
@@ -35,6 +36,23 @@ app.get('/lunchCrew', (request, response) => {
   dataService.getLunchCrews()
     .then(lunchCrews => {
       response.send(lunchCrews)
+    })
+    .catch(error => {
+      response.status(500).send(error)
+    })
+})
+
+app.post('/destination', (request, response) => {
+  var destinationOption = new DestinationOption(request.body)
+
+  if (!destinationOption.validate()) {
+    response.status(400).send(`Failed to validate ${JSON.stringify(request.body)}.`)
+    return
+  }
+
+  dataService.insertDestinationOption(destinationOption)
+    .then(() => {
+      response.sendStatus(200)
     })
     .catch(error => {
       response.status(500).send(error)

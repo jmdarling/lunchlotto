@@ -74,3 +74,29 @@ module.exports.insertLunchCrew = lunchCrew => {
     })
   })
 }
+
+/**
+ * Inserts a new DestinationOption to a given LunchCrew.
+ *
+ * @param destinationOption {DestinationOption} The DestinationOption to insert.
+ *
+ * @return {Promise}
+ */
+module.exports.insertDestinationOption = destinationOption => {
+  return new Promise((resolve, reject) => {
+    let collection = db.collection('lunchCrew')
+    let query = {name: destinationOption.lunchCrew}
+    let update = {$addToSet: { destinationOptions: destinationOption.name }}
+
+    collection.update(
+      query,
+      update,
+      (error, result) => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(result)
+      })
+  })
+}
