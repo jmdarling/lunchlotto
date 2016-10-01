@@ -54,6 +54,25 @@ module.exports.getLunchCrews = () => {
 }
 
 /**
+ * Gets LunchCrew details.
+ *
+ * @return {Array} An array of LunchCrew.
+ */
+module.exports.getLunchCrew = (lunchCrewName) => {
+  return new Promise((resolve, reject) => {
+    let collection = db.collection('lunchCrew')
+    let query = {name: lunchCrewName}
+
+    collection.findOne(query)
+      .then(document => {
+        resolve(new LunchCrew(document))
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
+
+/**
  * Inserts a new LunchCrew.
  *
  * @param lunchCrew {LunchCrew} The LunchCrew to insert.
@@ -72,5 +91,51 @@ module.exports.insertLunchCrew = lunchCrew => {
 
       resolve(result)
     })
+  })
+}
+
+/**
+ * Inserts a new DestinationOption to a given LunchCrew.
+ *
+ * @param destinationOption {DestinationOption} The DestinationOption to insert.
+ *
+ * @return {Promise}
+ */
+module.exports.insertDestinationOption = destinationOption => {
+  return new Promise((resolve, reject) => {
+    let collection = db.collection('lunchCrew')
+    let query = {name: destinationOption.lunchCrew}
+    let update = {$addToSet: { destinationOptions: destinationOption.name }}
+
+    collection.update(
+      query,
+      update,
+      (error, result) => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(result)
+      })
+  })
+}
+
+/**
+ * Gets Lunch Destinations for Lunch Crew.
+ *
+ * @return {Array} An array of DestionationOptions.
+ */
+module.exports.getDestinationOptions = (lunchCrewName) => {
+  return new Promise((resolve, reject) => {
+    let collection = db.collection('lunchCrew')
+    let query = {name: lunchCrewName}
+    console.log(query)
+
+    collection.findOne(query)
+      .then(document => {
+        resolve(document.destinationOptions)
+      }).catch(error => {
+        reject(error)
+      })
   })
 }
