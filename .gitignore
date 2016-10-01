@@ -77,3 +77,6 @@ Temporary Items
 .vscode/
 tsconfig.json
 jsconfig.json
+
+### .env ###
+.env
